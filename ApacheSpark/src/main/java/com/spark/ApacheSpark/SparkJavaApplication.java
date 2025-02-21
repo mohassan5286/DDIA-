@@ -62,6 +62,7 @@ import org.apache.spark.sql.AnalysisException;
 // col("...") is preferable to df.col("...")
 import static org.apache.spark.sql.functions.col;
 // $example off:untyped_ops$
+//java --add-exports java.base/sun.nio.ch=ALL-UNNAMED -jar target/original-spark-springboot.jar
 
 public class SparkJavaApplication {
 	// $example on:create_ds$
@@ -95,7 +96,7 @@ public class SparkJavaApplication {
 				.master("local[*]")  // For testing, use local mode to avoid connecting to Spark master
 				.getOrCreate();
 
-		System.out.println("Spark is running...");
+		System.out.println("Spark is running...\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nsdfadsfa");
 //		runBasicDataFrameExample(spark);
 //		runDatasetCreationExample(spark);
 //		runInferSchemaExample(spark);
