@@ -92,8 +92,8 @@ public class SparkJavaApplication {
 		// $example on:init_session$
 		// $example off:init_session$
 		SparkSession spark = SparkSession.builder()
-				.appName("Hello World Spark")
-				.master("local[*]")  // For testing, use local mode to avoid connecting to Spark master
+				.appName("Word Count")
+				.config("spark.some.config.option", "some-value")
 				.getOrCreate();
 
 		Dataset<Row> carDF = spark.read().parquet("src/main/resources/mtcars.parquet");
