@@ -96,7 +96,10 @@ public class SparkJavaApplication {
 				.master("local[*]")  // For testing, use local mode to avoid connecting to Spark master
 				.getOrCreate();
 
-		System.out.println("Spark is running...\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nsdfadsfa");
+		Dataset<Row> carDF = spark.read().parquet("src/main/resources/mtcars.parquet");
+		carDF.show();
+
+		System.out.println("Spark is running...\n");
 //		runBasicDataFrameExample(spark);
 //		runDatasetCreationExample(spark);
 //		runInferSchemaExample(spark);
