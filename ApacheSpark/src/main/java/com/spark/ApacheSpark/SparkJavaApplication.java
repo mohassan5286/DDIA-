@@ -28,7 +28,9 @@ import java.io.Serializable;
 
 // $example on:schema_inferring$
 // $example on:programmatic_schema$
+import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 // $example off:programmatic_schema$
 // $example on:create_ds$
@@ -87,13 +89,13 @@ public class SparkJavaApplication {
 
 	public static void main(String[] args) throws AnalysisException {
 		// $example on:init_session$
-		SparkSession spark = SparkSession
-				.builder()
-				.appName("Java Spark SQL basic example")
-				.config("spark.some.config.option", "some-value")
-				.getOrCreate();
 		// $example off:init_session$
+		SparkSession spark = SparkSession.builder()
+				.appName("Hello World Spark")
+				.master("local[*]")  // For testing, use local mode to avoid connecting to Spark master
+				.getOrCreate();
 
+		System.out.println("Spark is running...");
 //		runBasicDataFrameExample(spark);
 //		runDatasetCreationExample(spark);
 //		runInferSchemaExample(spark);
