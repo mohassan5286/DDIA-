@@ -2,13 +2,13 @@ CREATE DATABASE  TPCH_DATABASE;
 USE TPCH_DATABASE ;
 
 CREATE TABLE Region (
-    r_regionkey INT PRIMARY KEY,
+	r_regionkey INT PRIMARY KEY,
     r_name VARCHAR(100) ,
     r_comment VARCHAR(255)
 );
 
 CREATE TABLE Nation (
-	  n_nationkey INT PRIMARY KEY ,
+	n_nationkey INT PRIMARY KEY ,
     n_name VARCHAR(100) ,
     n_regionkey INT ,
     n_comment VARCHAR(255) ,
@@ -17,7 +17,7 @@ CREATE TABLE Nation (
 );
 
 CREATE TABLE Customer (
-	  c_custkey INT PRIMARY KEY ,
+	c_custkey INT PRIMARY KEY ,
     c_name VARCHAR(100) ,
     c_address VARCHAR(255) ,
     c_nationkey INT ,
@@ -30,7 +30,7 @@ CREATE TABLE Customer (
 );
 
 CREATE TABLE Supplier (
-	  s_suppkey INT PRIMARY KEY ,
+	s_suppkey INT PRIMARY KEY ,
     s_name VARCHAR(100) ,
     s_address VARCHAR(255) ,
     s_nationkey INT ,
@@ -42,7 +42,7 @@ CREATE TABLE Supplier (
 );
 
 CREATE TABLE Part (
-	  p_partkey INT PRIMARY KEY ,
+	p_partkey INT PRIMARY KEY ,
     p_name VARCHAR(100) ,
     p_mfgr VARCHAR(100) ,
     p_brand VARCHAR(100) ,
@@ -66,7 +66,7 @@ CREATE TABLE Partsupp (
 );
 
 CREATE TABLE Orders (
-	  o_orderkey INT PRIMARY KEY ,
+	o_orderkey INT PRIMARY KEY ,
     o_custkey INT,
     o_status VARCHAR(1) ,
     o_totalprice FLOAT ,
@@ -80,7 +80,7 @@ CREATE TABLE Orders (
 );
 
 CREATE TABLE Lineitem (
-	  l_orderkey INT ,
+	l_orderkey INT ,
     l_partkey INT ,
     l_suppkey INT ,
     l_linenumber INT ,
@@ -109,35 +109,35 @@ FLUSH PRIVILEGES;
 
 LOAD DATA INFILE '/var/lib/mysql-files/region.tbl' INTO TABLE Region
 			FIELDS TERMINATED BY '|' 
-      LINES TERMINATED BY '\n'; 
+            LINES TERMINATED BY '\n'; 
             
 LOAD DATA INFILE '/var/lib/mysql-files/nation.tbl' INTO TABLE Nation
 			FIELDS TERMINATED BY '|' 
-      LINES TERMINATED BY '\n'; 
+            LINES TERMINATED BY '\n'; 
 
 LOAD DATA INFILE '/var/lib/mysql-files/customer.tbl' INTO TABLE Customer 
 			FIELDS TERMINATED BY '|' 
-      LINES TERMINATED BY '\n'; 
+            LINES TERMINATED BY '\n'; 
             
 LOAD DATA INFILE '/var/lib/mysql-files/supplier.tbl' INTO TABLE Supplier 
 			FIELDS TERMINATED BY '|' 
-      LINES TERMINATED BY '\n';   
+            LINES TERMINATED BY '\n';   
             
 LOAD DATA INFILE '/var/lib/mysql-files/part.tbl' INTO TABLE Part
 			FIELDS TERMINATED BY '|' 
-      LINES TERMINATED BY '\n'; 
+            LINES TERMINATED BY '\n'; 
             
 LOAD DATA INFILE '/var/lib/mysql-files/partsupp.tbl' INTO TABLE Partsupp
 			FIELDS TERMINATED BY '|' 
-      LINES TERMINATED BY '\n'; 
+            LINES TERMINATED BY '\n'; 
             
 LOAD DATA INFILE '/var/lib/mysql-files/orders.tbl' INTO TABLE Orders
 			FIELDS TERMINATED BY '|' 
-      LINES TERMINATED BY '\n'; 
+            LINES TERMINATED BY '\n'; 
 
 LOAD DATA INFILE '/var/lib/mysql-files/lineitem.tbl' INTO TABLE Lineitem
 			FIELDS TERMINATED BY '|' 
-      LINES TERMINATED BY '\n'; 
+            LINES TERMINATED BY '\n'; 
             
 SELECT COUNT(*) AS Regions_count FROM Region ;
 SELECT COUNT(*) AS Nations_count FROM Nation ;
@@ -149,25 +149,25 @@ SELECT COUNT(*) AS Orders_count FROM Orders ;
 SELECT COUNT(*) AS LineItems_count FROM Lineitem ;
 
 select 
-  	n_name, 
-  	s_name,
-  	sum(l_quantity) as sum_qty,
-  	sum(l_extendedprice) as sum_base_price,
-  	sum(l_extendedprice * (1 - l_discount)) as sum_disc_price,
-  	sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge,
-  	avg(l_quantity) as avg_qty,
-  	avg(l_extendedprice) as avg_price,
-  	avg(l_discount) as avg_disc ,
-  	count(*) as count_order
+	n_name, 
+	s_name,
+	sum(l_quantity) as sum_qty,
+	sum(l_extendedprice) as sum_base_price,
+	sum(l_extendedprice * (1 - l_discount)) as sum_disc_price,
+	sum(l_extendedprice * (1 - l_discount) * (1 + l_tax)) as sum_charge,
+	avg(l_quantity) as avg_qty,
+	avg(l_extendedprice) as avg_price,
+	avg(l_discount) as avg_disc ,
+	count(*) as count_order
 from
-  	Lineitem,
-  	Orders,
-  	Customer,
-  	Nation,
-  	Partsupp,
-  	Supplier
+	Lineitem,
+	Orders,
+	Customer,
+	Nation,
+	Partsupp,
+	Supplier
 where
-    l_shipdate <= date'1998-12-01' -interval '90' day AND
+	l_shipdate <= date'1998-12-01' -interval '90' day AND
     l_orderkey = o_orderkey AND
     o_custkey = c_custkey AND 
     c_nationkey = n_nationkey AND
@@ -175,5 +175,5 @@ where
     l_suppkey = ps_suppkey AND
     ps_suppkey = s_suppkey
 group by 
-  	n_name , 
+	n_name , 
     s_name ;
