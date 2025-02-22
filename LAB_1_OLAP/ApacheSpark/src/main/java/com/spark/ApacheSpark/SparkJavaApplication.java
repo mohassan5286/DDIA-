@@ -65,7 +65,7 @@ public class SparkJavaApplication {
 
 	public static void main(String[] args) throws AnalysisException {
 
-		double startTime, endTime, avargeTimeSpark, avargeTimeMySQL;
+		double startTime, endTime, avargeTimeSpark = 0, avargeTimeMySQL = 0;
 
 		for(int i=0; i<8; i++)
 		{
@@ -82,20 +82,20 @@ public class SparkJavaApplication {
 			startTime = System.currentTimeMillis();
 			executeSparkQuery(spark);
 			endTime = System.currentTimeMillis();
-			avargeTimeSpark = (endTime - startTime);
-			System.out.println("Time for Spark: " + avargeTimeSpark + " seconds");
+			avargeTimeSpark += (endTime - startTime);
 
 			spark.stop();
 		}
+		System.out.println("Time for Spark: " + avargeTimeSpark / 8 + " seconds");
 
 		for(int i=0; i<8; i++) {
 			startTime = System.currentTimeMillis();
 			executeMySQLQuery();
 			endTime = System.currentTimeMillis();
-			avargeTimeMySQL = (endTime - startTime);
-			System.out.println("Time for MySQL: " + avargeTimeMySQL + " seconds");
+			avargeTimeMySQL += (endTime - startTime);
 		}
 
+		System.out.println("Time for MySQL: " + avargeTimeMySQL / 8 + " seconds");
 //
 	}
 
@@ -115,7 +115,7 @@ public class SparkJavaApplication {
 
 		Dataset<Row> sqlDF = spark.sql("SELECT * FROM cars");
 
-		sqlDF.show();
+//		sqlDF.show();
 
 	}
 
