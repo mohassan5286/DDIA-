@@ -175,5 +175,5 @@ where
 	l_suppkey = ps_suppkey AND
 	ps_suppkey = s_suppkey
 group by 
-	n_name , 
+	n_name ,  
 	s_name ;
