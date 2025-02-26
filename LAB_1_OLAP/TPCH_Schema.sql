@@ -1,5 +1,8 @@
 CREATE DATABASE  TPCH_DATABASE;
 USE TPCH_DATABASE ;
+use new_schema;
+
+SET FOREIGN_KEY_CHECKS = 0;
 
 CREATE TABLE Region (
 	r_regionkey INT PRIMARY KEY,
@@ -11,9 +14,9 @@ CREATE TABLE Nation (
 	n_nationkey INT PRIMARY KEY ,
 	n_name VARCHAR(100) ,
 	n_regionkey INT ,
-	n_comment VARCHAR(255) ,
+	n_comment VARCHAR(255) 
 
-	FOREIGN KEY (n_regionkey) REFERENCES Region(r_regionkey)
+	-- FOREIGN KEY (n_regionkey) REFERENCES Region(r_regionkey)
 );
 
 CREATE TABLE Customer (
@@ -24,9 +27,9 @@ CREATE TABLE Customer (
 	c_phone VARCHAR(15) ,
 	c_acctbal  FLOAT ,
 	c_mktsegment VARCHAR(100) ,
-	c_comment VARCHAR(255) ,
+	c_comment VARCHAR(255) 
 
-	FOREIGN KEY (c_nationkey) REFERENCES Nation(n_nationkey)
+	-- FOREIGN KEY (c_nationkey) REFERENCES Nation(n_nationkey)
 );
 
 CREATE TABLE Supplier (
@@ -36,9 +39,9 @@ CREATE TABLE Supplier (
 	s_nationkey INT ,
 	s_phone VARCHAR(15) ,
 	s_acctbal  FLOAT ,
-	s_comment VARCHAR(255) ,
+	s_comment VARCHAR(255) 
 
-	FOREIGN KEY (s_nationkey) REFERENCES Nation(n_nationkey)
+	-- FOREIGN KEY (s_nationkey) REFERENCES Nation(n_nationkey)
 );
 
 CREATE TABLE Part (
@@ -58,11 +61,11 @@ CREATE TABLE Partsupp (
 	ps_suppkey INT ,
 	ps_availqty INT ,
 	ps_supplycost FLOAT ,
-	ps_comment VARCHAR(255) ,
+	ps_comment VARCHAR(255) 
 
-	PRIMARY KEY (ps_partkey , ps_suppkey) ,
-	FOREIGN KEY (ps_partkey) REFERENCES Part(p_partkey) ,
-	FOREIGN KEY (ps_suppkey) REFERENCES Supplier(s_suppkey)
+	-- PRIMARY KEY (ps_partkey , ps_suppkey) ,
+	-- FOREIGN KEY (ps_partkey) REFERENCES Part(p_partkey) ,
+	-- FOREIGN KEY (ps_suppkey) REFERENCES Supplier(s_suppkey)
 );
 
 CREATE TABLE Orders (
@@ -74,9 +77,9 @@ CREATE TABLE Orders (
 	o_orderpriority VARCHAR(15) ,
 	o_cleark VARCHAR(100) ,
 	o_shippriority VARCHAR(1) ,
-	o_comment VARCHAR(255) ,
+	o_comment VARCHAR(255) 
 
-	FOREIGN KEY (o_custkey) REFERENCES Customer(c_custkey) 
+	-- FOREIGN KEY (o_custkey) REFERENCES Customer(c_custkey) 
 );
 
 CREATE TABLE Lineitem (
@@ -90,17 +93,18 @@ CREATE TABLE Lineitem (
 	l_tax FLOAT ,
 	l_returnflag VARCHAR(1) ,
 	l_linestatus VARCHAR(1) ,
-	l_shipdata DATE ,
+	l_shipdate DATE ,
 	l_commitdate DATE ,
 	l_receiptdate DATE ,
 	l_shipinstruct VARCHAR(100) ,
 	l_shipmode VARCHAR(100) ,
-	l_comment VARCHAR(255) ,
+	l_comment VARCHAR(255) 
 
-	FOREIGN KEY (l_orderkey) REFERENCES Orders(o_orderkey) ,
-	FOREIGN KEY (l_partkey , l_suppkey) REFERENCES Partsupp(ps_partkey , ps_suppkey) 
+	-- FOREIGN KEY (l_orderkey) REFERENCES Orders(o_orderkey) ,
+	-- FOREIGN KEY (l_partkey , l_suppkey) REFERENCES Partsupp(ps_partkey , ps_suppkey) 
 );
 
+show index from Lineitem;
 
 SHOW VARIABLES LIKE 'secure_file_priv' ;
 GRANT FILE ON *.* TO 'root'@'localhost';
@@ -177,3 +181,42 @@ where
 group by 
 	n_name ,  
 	s_name ;
+
+SELECT 
+    n.n_name, 
+    s.s_name,
+    SUM(l.l_quantity) AS sum_qty,
+    SUM(l.l_extendedprice) AS sum_base_price,
+    SUM(l.l_extendedprice * (1 - l.l_discount)) AS sum_disc_price,
+    SUM(l.l_extendedprice * (1 - l.l_discount) * (1 + l.l_tax)) AS sum_charge,
+    AVG(l.l_quantity) AS avg_qty,
+    AVG(l.l_extendedprice) AS avg_price,
+    AVG(l.l_discount) AS avg_disc,
+    COUNT(*) AS count_order
+FROM Lineitem l
+JOIN Orders o ON l.l_orderkey = o.o_orderkey
+JOIN Customer c ON o.o_custkey = c.c_custkey
+JOIN Nation n ON c.c_nationkey = n.n_nationkey
+JOIN Partsupp ps ON l.l_partkey = ps.ps_partkey AND l.l_suppkey = ps.ps_suppkey
+JOIN Supplier s ON ps.ps_suppkey = s.s_suppkey
+WHERE l.l_shipdate <= '1998-09-02'
+GROUP BY n.n_name, s.s_name;
+
+SELECT 
+    n.n_name, 
+    s.s_name, 
+    SUM(l.l_quantity) AS sum_qty, 
+    SUM(l.l_extendedprice) AS sum_base_price, 
+    SUM(l.l_extendedprice * (1 - l.l_discount)) AS sum_disc_price, 
+    SUM(l.l_extendedprice * (1 - l.l_discount) * (1 + l.l_tax)) AS sum_charge, 
+    AVG(l.l_quantity) AS avg_qty, 
+    AVG(l.l_extendedprice) AS avg_price, 
+    AVG(l.l_discount) AS avg_disc, 
+    COUNT(*) AS count_order
+FROM Lineitem l
+JOIN Orders o ON l.l_orderkey = o.o_orderkey
+JOIN Customer c ON o.o_custkey = c.c_custkey
+JOIN Nation n ON c.c_nationkey = n.n_nationkey
+JOIN Supplier s ON l.l_suppkey = s.s_suppkey
+WHERE l.l_shipdate <= '1998-09-02'
+GROUP BY n.n_name, s.s_name;  
