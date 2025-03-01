@@ -4,4 +4,14 @@
 2. Environment variables: You need to set the environment variables for Java, Hadoop (winutils.exe) and Spark.
 3. Logging: Spark uses log4j for logging. You need to set the log4j properties file.
    1. There a problem here of exception that you have to write to be able to work
-4. 
+4. dsaf
+
+# How to run Spark
+
+1. Run these commands
+```
+java --add-exports java.base/sun.nio.ch=ALL-UNNAMED -jar target/original-spark-springboot.jar
+```
+
+
+

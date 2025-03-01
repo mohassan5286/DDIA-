@@ -73,7 +73,8 @@ public class SparkJavaApplication {
 			SparkSession spark = SparkSession
 					.builder()
 					.appName("Java Spark SQL basic example")
-					.config("spark.some.config.option", "some-value")
+//					.config("spark.some.config.option", "some-value")
+					.master("local[*]")
 					.getOrCreate();
 			// $example off:init_session$
 
@@ -90,26 +91,26 @@ public class SparkJavaApplication {
 		}
 		System.out.println("Time for Spark: " + avargeTimeSpark / 8 + " seconds");
 
-		for(int i=0; i<8; i++) {
-			startTime = System.currentTimeMillis();
-			executeMySQLQuery();
-			endTime = System.currentTimeMillis();
-			currentTime = endTime - startTime;
-			System.out.println( i+1 + "Time for Spark: " + currentTime + " seconds");
-			avargeTimeMySQL += currentTime;
-		}
+//		for(int i=0; i<8; i++) {
+//			startTime = System.currentTimeMillis();
+//			executeMySQLQuery();
+//			endTime = System.currentTimeMillis();
+//			currentTime = endTime - startTime;
+//			System.out.println( i+1 + "Time for Spark: " + currentTime + " seconds");
+//			avargeTimeMySQL += currentTime;
+//		}
 
 		System.out.println("Time for MySQL: " + avargeTimeMySQL / 8 + " seconds");
 //
 	}
 
-	private static void executeMySQLQuery() {
-		
-		Repository repository = null;
-		
-		repository.runQuery();
-		
-	}
+//	private static void executeMySQLQuery() {
+//
+//		Repository repository = null;
+//
+//		repository.runQuery();
+//
+//	}
 
 	private static void executeSparkQuery(SparkSession spark) {
 
