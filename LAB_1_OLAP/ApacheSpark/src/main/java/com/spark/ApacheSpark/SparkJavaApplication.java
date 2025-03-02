@@ -17,14 +17,22 @@ package com.spark.ApacheSpark;/*
 //package org.apache.spark.examples.sql;
 
 // $example on:programmatic_schema$
-import java.util.*;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 // $example off:programmatic_schema$
 // $example on:create_ds$
+import java.util.Arrays;
+import java.util.Collections;
 import java.io.Serializable;
 // $example off:create_ds$
 
 // $example on:schema_inferring$
 // $example on:programmatic_schema$
+import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -35,25 +43,19 @@ import org.apache.spark.api.java.function.MapFunction;
 // $example on:create_df$
 // $example on:run_sql$
 // $example on:programmatic_schema$
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
+import org.apache.spark.sql.*;
 // $example off:programmatic_schema$
 // $example off:create_df$
 // $example off:run_sql$
-import org.apache.spark.sql.Encoder;
-import org.apache.spark.sql.Encoders;
 // $example off:create_ds$
 // $example off:schema_inferring$
-import org.apache.spark.sql.RowFactory;
 // $example on:init_session$
-import org.apache.spark.sql.SparkSession;
 // $example off:init_session$
 // $example on:programmatic_schema$
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 // $example off:programmatic_schema$
-import org.apache.spark.sql.AnalysisException;
 
 // $example on:untyped_ops$
 // col("...") is preferable to df.col("...")
@@ -62,66 +64,322 @@ import static org.apache.spark.sql.functions.col;
 //java --add-exports java.base/sun.nio.ch=ALL-UNNAMED -jar target/original-spark-springboot.jar
 
 public class SparkJavaApplication {
+	// $example on:create_ds$
+	public static class Person implements Serializable {
+		private String name;
+		private long age;
 
-	public static void main(String[] args) throws AnalysisException {
-
-		double startTime, endTime, avargeTimeSpark = 0, avargeTimeMySQL = 0, currentTime;
-
-		for(int i=0; i<8; i++)
-		{
-			// $example on:init_session$
-			SparkSession spark = SparkSession
-					.builder()
-					.appName("Java Spark SQL basic example")
-//					.config("spark.some.config.option", "some-value")
-					.master("local[*]")
-					.getOrCreate();
-			// $example off:init_session$
-
-			System.out.println("Spark is running...\n");
-
-			startTime = System.currentTimeMillis();
-			executeSparkQuery(spark);
-			endTime = System.currentTimeMillis();
-			currentTime = endTime - startTime;
-			System.out.println( i+1 + "Time for Spark: " + currentTime + " seconds");
-			avargeTimeSpark += currentTime;
-
-			spark.stop();
+		public String getName() {
+			return name;
 		}
-		System.out.println("Time for Spark: " + avargeTimeSpark / 8 + " seconds");
 
-//		for(int i=0; i<8; i++) {
-//			startTime = System.currentTimeMillis();
-//			executeMySQLQuery();
-//			endTime = System.currentTimeMillis();
-//			currentTime = endTime - startTime;
-//			System.out.println( i+1 + "Time for Spark: " + currentTime + " seconds");
-//			avargeTimeMySQL += currentTime;
-//		}
+		public void setName(String name) {
+			this.name = name;
+		}
 
-		System.out.println("Time for MySQL: " + avargeTimeMySQL / 8 + " seconds");
-//
+		public long getAge() {
+			return age;
+		}
+
+		public void setAge(long age) {
+			this.age = age;
+		}
+	}
+	// $example off:create_ds$
+
+
+	public static void main(String[] args) {
+
+		System.setProperty("log4j.configuration", "file:src/main/resources/log4j.properties");
+
+
+		// Initialize Spark Session
+		SparkSession spark = SparkSession.builder()
+				.appName("Aggregation Query from Parquet Files")
+				.master("local[*]")
+				.getOrCreate();
+
+		// Define Parquet file paths
+		String factTablePath = "/mnt/01D8D4FB872972F0/Life/collage/collage_labs/year_3/term2/DDIA/data/FactTableParquets/";
+		String nationTablePath = "/mnt/01D8D4FB872972F0/Life/collage/collage_labs/year_3/term2/DDIA/data/NationDimensionTableParquets/";
+		String supplierTablePath = "/mnt/01D8D4FB872972F0/Life/collage/collage_labs/year_3/term2/DDIA/data/SupplierDimensionTableParquets/";
+
+		// Load Parquet files as DataFrames
+		Dataset<Row> factTable = spark.read().parquet(factTablePath);
+		Dataset<Row> nationTable = spark.read().parquet(nationTablePath);
+		Dataset<Row> supplierTable = spark.read().parquet(supplierTablePath);
+
+		// Show data
+		factTable.show();
+		nationTable.show();
+		supplierTable.show();
+
+		// Perform SQL-like aggregation using Spark DataFrame API
+		long startTime = System.nanoTime();
+		Dataset<Row> result = factTable
+				.join(nationTable, factTable.col("n_nationkey").equalTo(nationTable.col("n_nationkey")))
+				.join(supplierTable, factTable.col("s_suppkey").equalTo(supplierTable.col("s_suppkey")))
+				.groupBy(nationTable.col("n_name"), supplierTable.col("s_name"))
+				.agg(
+						functions.sum(factTable.col("l_quantity")).alias("sum_qty"),
+						functions.sum(factTable.col("l_extendedprice")).alias("sum_base_price"),
+						functions.sum(factTable.col("l_extendedprice").multiply(functions.lit(1).minus(factTable.col("l_discount")))).alias("sum_disc_price"),
+						functions.sum(factTable.col("l_extendedprice").multiply(functions.lit(1).minus(factTable.col("l_discount"))).multiply(functions.lit(1).plus(factTable.col("l_tax")))).alias("sum_charge"),
+						functions.avg(factTable.col("l_quantity")).alias("avg_qty"),
+						functions.avg(factTable.col("l_extendedprice")).alias("avg_price"),
+						functions.avg(factTable.col("l_discount")).alias("avg_disc"),
+						functions.count("*").alias("count_order")
+				);
+		long executionTime = System.nanoTime() - startTime;
+
+		System.out.printf("Query Execution Time: %.4f seconds%n", executionTime / 1e9);
+
+		// Show results
+		result.show();
+
+		// Stop Spark Session
+		spark.stop();
 	}
 
-//	private static void executeMySQLQuery() {
-//
-//		Repository repository = null;
-//
-//		repository.runQuery();
-//
-//	}
 
-	private static void executeSparkQuery(SparkSession spark) {
 
-		Dataset<Row> df = spark.read().json("examples/src/main/resources/mtcars.parquet");
+	private static void runBasicDataFrameExample(SparkSession spark) throws AnalysisException {
+		// $example on:create_df$
+		Dataset<Row> df = spark.read().json("examples/src/main/resources/people.json");
 
-		df.createOrReplaceTempView("cars");
+		// Displays the content of the DataFrame to stdout
+		df.show();
+		// +----+-------+
+		// | age|   name|
+		// +----+-------+
+		// |null|Michael|
+		// |  30|   Andy|
+		// |  19| Justin|
+		// +----+-------+
+		// $example off:create_df$
 
-		Dataset<Row> sqlDF = spark.sql("SELECT * FROM cars");
+		// $example on:untyped_ops$
+		// Print the schema in a tree format
+		df.printSchema();
+		// root
+		// |-- age: long (nullable = true)
+		// |-- name: string (nullable = true)
 
-//		sqlDF.show();
+		// Select only the "name" column
+		df.select("name").show();
+		// +-------+
+		// |   name|
+		// +-------+
+		// |Michael|
+		// |   Andy|
+		// | Justin|
+		// +-------+
 
+		// Select everybody, but increment the age by 1
+		df.select(col("name"), col("age").plus(1)).show();
+		// +-------+---------+
+		// |   name|(age + 1)|
+		// +-------+---------+
+		// |Michael|     null|
+		// |   Andy|       31|
+		// | Justin|       20|
+		// +-------+---------+
+
+		// Select people older than 21
+		df.filter(col("age").gt(21)).show();
+		// +---+----+
+		// |age|name|
+		// +---+----+
+		// | 30|Andy|
+		// +---+----+
+
+		// Count people by age
+		df.groupBy("age").count().show();
+		// +----+-----+
+		// | age|count|
+		// +----+-----+
+		// |  19|    1|
+		// |null|    1|
+		// |  30|    1|
+		// +----+-----+
+		// $example off:untyped_ops$
+
+		// $example on:run_sql$
+		// Register the DataFrame as a SQL temporary view
+		df.createOrReplaceTempView("people");
+
+		Dataset<Row> sqlDF = spark.sql("SELECT * FROM people");
+		sqlDF.show();
+		// +----+-------+
+		// | age|   name|
+		// +----+-------+
+		// |null|Michael|
+		// |  30|   Andy|
+		// |  19| Justin|
+		// +----+-------+
+		// $example off:run_sql$
+
+		// $example on:global_temp_view$
+		// Register the DataFrame as a global temporary view
+		df.createGlobalTempView("people");
+
+		// Global temporary view is tied to a system preserved database `global_temp`
+		spark.sql("SELECT * FROM global_temp.people").show();
+		// +----+-------+
+		// | age|   name|
+		// +----+-------+
+		// |null|Michael|
+		// |  30|   Andy|
+		// |  19| Justin|
+		// +----+-------+
+
+		// Global temporary view is cross-session
+		spark.newSession().sql("SELECT * FROM global_temp.people").show();
+		// +----+-------+
+		// | age|   name|
+		// +----+-------+
+		// |null|Michael|
+		// |  30|   Andy|
+		// |  19| Justin|
+		// +----+-------+
+		// $example off:global_temp_view$
 	}
 
+	private static void runDatasetCreationExample(SparkSession spark) {
+		// $example on:create_ds$
+		// Create an instance of a Bean class
+		Person person = new Person();
+		person.setName("Andy");
+		person.setAge(32);
+
+		// Encoders are created for Java beans
+		Encoder<Person> personEncoder = Encoders.bean(Person.class);
+		Dataset<Person> javaBeanDS = spark.createDataset(
+				Collections.singletonList(person),
+				personEncoder
+		);
+		javaBeanDS.show();
+		// +---+----+
+		// |age|name|
+		// +---+----+
+		// | 32|Andy|
+		// +---+----+
+
+		// Encoders for most common types are provided in class Encoders
+		Encoder<Long> longEncoder = Encoders.LONG();
+		Dataset<Long> primitiveDS = spark.createDataset(Arrays.asList(1L, 2L, 3L), longEncoder);
+		Dataset<Long> transformedDS = primitiveDS.map(
+				(MapFunction<Long, Long>) value -> value + 1L,
+				longEncoder);
+		transformedDS.collect(); // Returns [2, 3, 4]
+
+		// DataFrames can be converted to a Dataset by providing a class. Mapping based on name
+		String path = "examples/src/main/resources/people.json";
+		Dataset<Person> peopleDS = spark.read().json(path).as(personEncoder);
+		peopleDS.show();
+		// +----+-------+
+		// | age|   name|
+		// +----+-------+
+		// |null|Michael|
+		// |  30|   Andy|
+		// |  19| Justin|
+		// +----+-------+
+		// $example off:create_ds$
+	}
+
+	private static void runInferSchemaExample(SparkSession spark) {
+		// $example on:schema_inferring$
+		// Create an RDD of Person objects from a text file
+		JavaRDD<Person> peopleRDD = spark.read()
+				.textFile("examples/src/main/resources/people.txt")
+				.javaRDD()
+				.map(line -> {
+					String[] parts = line.split(",");
+					Person person = new Person();
+					person.setName(parts[0]);
+					person.setAge(Integer.parseInt(parts[1].trim()));
+					return person;
+				});
+
+		// Apply a schema to an RDD of JavaBeans to get a DataFrame
+		Dataset<Row> peopleDF = spark.createDataFrame(peopleRDD, Person.class);
+		// Register the DataFrame as a temporary view
+		peopleDF.createOrReplaceTempView("people");
+
+		// SQL statements can be run by using the sql methods provided by spark
+		Dataset<Row> teenagersDF = spark.sql("SELECT name FROM people WHERE age BETWEEN 13 AND 19");
+
+		// The columns of a row in the result can be accessed by field index
+		Encoder<String> stringEncoder = Encoders.STRING();
+		Dataset<String> teenagerNamesByIndexDF = teenagersDF.map(
+				(MapFunction<Row, String>) row -> "Name: " + row.getString(0),
+				stringEncoder);
+		teenagerNamesByIndexDF.show();
+		// +------------+
+		// |       value|
+		// +------------+
+		// |Name: Justin|
+		// +------------+
+
+		// or by field name
+		Dataset<String> teenagerNamesByFieldDF = teenagersDF.map(
+				(MapFunction<Row, String>) row -> "Name: " + row.<String>getAs("name"),
+				stringEncoder);
+		teenagerNamesByFieldDF.show();
+		// +------------+
+		// |       value|
+		// +------------+
+		// |Name: Justin|
+		// +------------+
+		// $example off:schema_inferring$
+	}
+
+	private static void runProgrammaticSchemaExample(SparkSession spark) {
+		// $example on:programmatic_schema$
+		// Create an RDD
+		JavaRDD<String> peopleRDD = spark.sparkContext()
+				.textFile("examples/src/main/resources/people.txt", 1)
+				.toJavaRDD();
+
+		// The schema is encoded in a string
+		String schemaString = "name age";
+
+		// Generate the schema based on the string of schema
+		List<StructField> fields = new ArrayList<>();
+		for (String fieldName : schemaString.split(" ")) {
+			StructField field = DataTypes.createStructField(fieldName, DataTypes.StringType, true);
+			fields.add(field);
+		}
+		StructType schema = DataTypes.createStructType(fields);
+
+		// Convert records of the RDD (people) to Rows
+		JavaRDD<Row> rowRDD = peopleRDD.map((Function<String, Row>) record -> {
+			String[] attributes = record.split(",");
+			return RowFactory.create(attributes[0], attributes[1].trim());
+		});
+
+		// Apply the schema to the RDD
+		Dataset<Row> peopleDataFrame = spark.createDataFrame(rowRDD, schema);
+
+		// Creates a temporary view using the DataFrame
+		peopleDataFrame.createOrReplaceTempView("people");
+
+		// SQL can be run over a temporary view created using DataFrames
+		Dataset<Row> results = spark.sql("SELECT name FROM people");
+
+		// The results of SQL queries are DataFrames and support all the normal RDD operations
+		// The columns of a row in the result can be accessed by field index or by field name
+		Dataset<String> namesDS = results.map(
+				(MapFunction<Row, String>) row -> "Name: " + row.getString(0),
+				Encoders.STRING());
+		namesDS.show();
+		// +-------------+
+		// |        value|
+		// +-------------+
+		// |Name: Michael|
+		// |   Name: Andy|
+		// | Name: Justin|
+		// +-------------+
+		// $example off:programmatic_schema$
+	}
 }

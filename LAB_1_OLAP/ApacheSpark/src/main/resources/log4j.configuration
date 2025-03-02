@@ -1,0 +1,9 @@
+log4j.rootLogger=WARN, console
+log4j.logger.org.apache.spark=WARN
+log4j.logger.org.eclipse.jetty=WARN
+log4j.logger.org.spark_project=WARN
+log4j.logger.org.apache.hadoop=WARN
+log4j.logger.org.apache.parquet=WARN
+log4j.logger.org.apache.spark.sql.execution.datasources.parquet=WARN
+log4j.logger.org.apache.yarn=WARN
+log4j.logger.org.apache.spark.storage.BlockManager=ERROR

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="4d07cb6f-1df7-471d-bff8-3baf57330705" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/.gitattributes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/.mvn/wrapper/maven-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/dependency-reduced-pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/dependency-reduced-pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/src/main/java/com/spark/ApacheSpark/Repository.java" beforeDir="false" afterPath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/src/main/java/com/spark/ApacheSpark/Repository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/src/main/java/com/spark/ApacheSpark/SparkJavaApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/src/main/java/com/spark/ApacheSpark/SparkJavaApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/LAB_1_OLAP/ApacheSpark/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LAB_1_OLAP/Spark.md" beforeDir="false" afterPath="$PROJECT_DIR$/LAB_1_OLAP/Spark.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="2tjSJPE3sgZ3UQ6psgZpgaUgPBq" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "spark",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/mnt/01D8D4FB872972F0/Life/collage/collage_labs/year_3/term2/DDIA/DDIA-/LAB_1_OLAP/ApacheSpark"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4d07cb6f-1df7-471d-bff8-3baf57330705" name="Changes" comment="" />
+      <created>1740863918872</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1740863918872</updated>
+    </task>
+    <servers />
+  </component>
+</project>
