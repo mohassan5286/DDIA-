@@ -200,7 +200,8 @@ JOIN Nation n ON c.c_nationkey = n.n_nationkey
 JOIN Partsupp ps ON l.l_partkey = ps.ps_partkey AND l.l_suppkey = ps.ps_suppkey
 JOIN Supplier s ON ps.ps_suppkey = s.s_suppkey
 WHERE l.l_shipdate <= '1998-09-02'
-GROUP BY n.n_name, s.s_name;
+GROUP BY n.n_name, s.s_name
+ORDER BY n.n_name;
 
 SELECT 
     n.n_name, 
@@ -219,4 +220,5 @@ JOIN Customer c ON o.o_custkey = c.c_custkey
 JOIN Nation n ON c.c_nationkey = n.n_nationkey
 JOIN Supplier s ON l.l_suppkey = s.s_suppkey
 WHERE l.l_shipdate <= '1998-09-02'
-GROUP BY n.n_name, s.s_name;  
+GROUP BY n.n_name, s.s_name
+ORDER BY n.n_name;  
