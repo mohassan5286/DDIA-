@@ -17,9 +17,6 @@ package com.spark.ApacheSpark;/*
 //package org.apache.spark.examples.sql;
 
 // $example on:programmatic_schema$
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 // $example off:programmatic_schema$
@@ -31,8 +28,6 @@ import java.io.Serializable;
 
 // $example on:schema_inferring$
 // $example on:programmatic_schema$
-import org.apache.log4j.Logger;
-import org.apache.logging.log4j.Level;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -43,19 +38,25 @@ import org.apache.spark.api.java.function.MapFunction;
 // $example on:create_df$
 // $example on:run_sql$
 // $example on:programmatic_schema$
-import org.apache.spark.sql.*;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 // $example off:programmatic_schema$
 // $example off:create_df$
 // $example off:run_sql$
+import org.apache.spark.sql.Encoder;
+import org.apache.spark.sql.Encoders;
 // $example off:create_ds$
 // $example off:schema_inferring$
+import org.apache.spark.sql.RowFactory;
 // $example on:init_session$
+import org.apache.spark.sql.SparkSession;
 // $example off:init_session$
 // $example on:programmatic_schema$
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 // $example off:programmatic_schema$
+import org.apache.spark.sql.AnalysisException;
 
 // $example on:untyped_ops$
 // col("...") is preferable to df.col("...")
@@ -87,61 +88,25 @@ public class SparkJavaApplication {
 	}
 	// $example off:create_ds$
 
-
-	public static void main(String[] args) {
-
-		System.setProperty("log4j.configuration", "file:src/main/resources/log4j.properties");
-
-
-		// Initialize Spark Session
+	public static void main(String[] args) throws AnalysisException {
+		// $example on:init_session$
+		// $example off:init_session$
 		SparkSession spark = SparkSession.builder()
-				.appName("Aggregation Query from Parquet Files")
-				.master("local[*]")
+				.appName("Hello World Spark")
+				.master("local[*]")  // For testing, use local mode to avoid connecting to Spark master
 				.getOrCreate();
 
-		// Define Parquet file paths
-		String factTablePath = "/mnt/01D8D4FB872972F0/Life/collage/collage_labs/year_3/term2/DDIA/data/FactTableParquets/";
-		String nationTablePath = "/mnt/01D8D4FB872972F0/Life/collage/collage_labs/year_3/term2/DDIA/data/NationDimensionTableParquets/";
-		String supplierTablePath = "/mnt/01D8D4FB872972F0/Life/collage/collage_labs/year_3/term2/DDIA/data/SupplierDimensionTableParquets/";
+		Dataset<Row> carDF = spark.read().parquet("src/main/resources/mtcars.parquet");
+		carDF.show();
 
-		// Load Parquet files as DataFrames
-		Dataset<Row> factTable = spark.read().parquet(factTablePath);
-		Dataset<Row> nationTable = spark.read().parquet(nationTablePath);
-		Dataset<Row> supplierTable = spark.read().parquet(supplierTablePath);
-
-		// Show data
-		factTable.show();
-		nationTable.show();
-		supplierTable.show();
-
-		// Perform SQL-like aggregation using Spark DataFrame API
-		long startTime = System.nanoTime();
-		Dataset<Row> result = factTable
-				.join(nationTable, factTable.col("n_nationkey").equalTo(nationTable.col("n_nationkey")))
-				.join(supplierTable, factTable.col("s_suppkey").equalTo(supplierTable.col("s_suppkey")))
-				.groupBy(nationTable.col("n_name"), supplierTable.col("s_name"))
-				.agg(
-						functions.sum(factTable.col("l_quantity")).alias("sum_qty"),
-						functions.sum(factTable.col("l_extendedprice")).alias("sum_base_price"),
-						functions.sum(factTable.col("l_extendedprice").multiply(functions.lit(1).minus(factTable.col("l_discount")))).alias("sum_disc_price"),
-						functions.sum(factTable.col("l_extendedprice").multiply(functions.lit(1).minus(factTable.col("l_discount"))).multiply(functions.lit(1).plus(factTable.col("l_tax")))).alias("sum_charge"),
-						functions.avg(factTable.col("l_quantity")).alias("avg_qty"),
-						functions.avg(factTable.col("l_extendedprice")).alias("avg_price"),
-						functions.avg(factTable.col("l_discount")).alias("avg_disc"),
-						functions.count("*").alias("count_order")
-				);
-		long executionTime = System.nanoTime() - startTime;
-
-		System.out.printf("Query Execution Time: %.4f seconds%n", executionTime / 1e9);
-
-		// Show results
-		result.show();
-
-		// Stop Spark Session
-		spark.stop();
+		System.out.println("Spark is running...\n");
+//		runBasicDataFrameExample(spark);
+//		runDatasetCreationExample(spark);
+//		runInferSchemaExample(spark);
+//		runProgrammaticSchemaExample(spark);
+//
+//		spark.stop();
 	}
-
-
 
 	private static void runBasicDataFrameExample(SparkSession spark) throws AnalysisException {
 		// $example on:create_df$
